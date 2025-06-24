@@ -1,54 +1,68 @@
 import React, { useState } from 'react';
 import IngredientsModal from './IngredientsModal';
 import InstructionsModal from './InstructionsModal';
-import YouTubeVideos from './YouTubeVideos';
-import './modals.css';
+import { guessRecipeDetails } from '../utils/aiGuessService';
+import './YouTubeVideoCard.css';
 
-function RecipeCard({ recipe, searchTerm }) {
+function YouTubeRecipeCard({ video }) {
+    const [ingredients, setIngredients] = useState([]);
+    const [steps, setSteps] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [showIngredients, setShowIngredients] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
 
-    const getIngredients = () => {
-        const ingredients = [];
-        for (let i = 1; i <= 20; i++) {
-            const ing = recipe[`strIngredient${i}`];
-            const measure = recipe[`strMeasure${i}`];
-            if (ing && ing.trim() !== '') {
-                ingredients.push(`${measure} ${ing}`);
-            }
-        }
-        return ingredients;
+    const { videoId } = video.id;
+    const { title, channelTitle } = video.snippet;
+
+    const fetchRecipeDetails = async () => {
+        setLoading(true);
+        const { ingredients, steps } = await guessRecipeDetails(title);
+        setIngredients(ingredients);
+        setSteps(steps);
+        setLoading(false);
     };
 
-    const query = searchTerm || recipe.strMeal;
+    const handleShowIngredients = async () => {
+        if (ingredients.length === 0) await fetchRecipeDetails();
+        setShowIngredients(true);
+    };
+
+    const handleShowInstructions = async () => {
+        if (steps.length === 0) await fetchRecipeDetails();
+        setShowInstructions(true);
+    };
 
     return (
         <div className="recipe-card">
-            <img src={recipe.strMealThumb} alt={recipe.strMeal} />
-            <h3>{recipe.strMeal}</h3>
-            <p><strong>Category:</strong> {recipe.strCategory}</p>
+            <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                title={title}
+                width="100%"
+                height="200"
+                allowFullScreen
+            ></iframe>
+            <h3>{title}</h3>
+            <p><strong>Channel:</strong> {channelTitle}</p>
 
-            <button onClick={() => setShowIngredients(true)}>🍅 Show Ingredients</button>
-            <button onClick={() => setShowInstructions(true)}>📝 Show Full Recipe</button>
+            <button onClick={handleShowIngredients}>🍅 Show Ingredients</button>
+            <button onClick={handleShowInstructions}>📝 Show Full Recipe</button>
 
             {showIngredients && (
                 <IngredientsModal
-                    ingredients={getIngredients()}
+                    ingredients={ingredients}
                     onClose={() => setShowIngredients(false)}
                 />
             )}
-
             {showInstructions && (
                 <InstructionsModal
-                    instructions={recipe.strInstructions}
+                    instructions={steps}
                     onClose={() => setShowInstructions(false)}
                 />
             )}
 
-            {/* Show all related YouTube videos automatically below */}
-            <YouTubeVideos query={recipe.strMeal} />
+            {loading && <p>Loading AI Recipe...</p>}
         </div>
     );
 }
 
-export default RecipeCard;
+export default YouTubeRecipeCard;

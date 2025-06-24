@@ -49,3 +49,14 @@ h1 {
   gap: 24px;
   padding: 0 20px;
 }
+
+
+.nav-links {
+  margin-bottom: 20px;
+}
+.nav-links a {
+  margin: 0 10px;
+  text-decoration: none;
+  font-weight: bold;
+  color: white;
+}

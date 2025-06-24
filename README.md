@@ -1,12 +1,29 @@
-# React + Vite
+# 🍽️ AI Recipe Finder using YouTube & AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a smart and interactive **Indian recipe finder app** built using **React.js**, **YouTube Data API**, and **OpenRouter.ai (ChatGPT)**. It allows users to search for Indian dishes, displays related YouTube videos, and extracts detailed **ingredients** and **step-by-step cooking instructions** using AI.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- 🔍 **Search** Indian food dishes like "khichdi", "matar paneer", "masala chai"
+- 📺 **Fetch related YouTube videos** automatically
+- 🧠 **AI-powered** generation of ingredients and full recipe from video title
+- 🍅 `Show Ingredients` and 📝 `Show Full Recipe` pop-up modals
+- 🎨 Beautiful, responsive UI using CSS Grid & Flexbox
+- ✅ Uses free APIs with no paid OpenAI token required
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Technologies Used
+
+| Technology         | Purpose                                      |
+|--------------------|----------------------------------------------|
+| React.js           | Frontend UI framework                        |
+| YouTube Data API   | Fetch recipe videos                          |
+| OpenRouter.ai      | Free ChatGPT-compatible AI for text generation |
+| CSS Flex/Grid      | Responsive and modern layout styling         |
+| Vite               | Fast React development environment           |
+
+---
+

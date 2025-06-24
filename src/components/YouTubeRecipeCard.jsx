@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import IngredientsModal from './IngredientsModal';
-import InstructionsModal from './InstructionsModal';
-import { guessRecipeDetails } from '../utils/aiGuessService';
-import { isFavorite, toggleFavorite } from '../utils/favoritesHelper';
-import './Modals.css';
+import React, { useState } from "react";
+import IngredientsModal from "./IngredientsModal";
+import InstructionsModal from "./InstructionsModal";
+import { guessRecipeDetails } from "../utils/aiGuessService";
+import "./modals.css";
 
-function YouTubeRecipeCard({ video }) {
+function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
     const [showIngredients, setShowIngredients] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
-    const [isFav, setIsFav] = useState(false);
+    const [ingredients, setIngredients] = useState([]);
+    const [steps, setSteps] = useState([]);
 
     const { videoId } = video.id;
     const { title, description, channelTitle } = video.snippet;
 
-    useEffect(() => {
-        setIsFav(isFavorite(videoId));
-    }, [videoId]);
+    const fetchRecipeDetails = async () => {
+        const result = await guessRecipeDetails(`${title}\n${description}`);
+        setIngredients(result.ingredients);
+        setSteps(result.steps);
+    };
 
-    const handleToggleFavorite = () => {
-        toggleFavorite({ ...video, videoId });
-        setIsFav(!isFav);
+    const handleShowIngredients = () => {
+        fetchRecipeDetails();
+        setShowIngredients(true);
+    };
+
+    const handleShowInstructions = () => {
+        fetchRecipeDetails();
+        setShowInstructions(true);
     };
 
     return (
@@ -35,22 +42,22 @@ function YouTubeRecipeCard({ video }) {
             <h3>{title}</h3>
             <p><strong>Channel:</strong> {channelTitle}</p>
 
-            <button onClick={() => setShowIngredients(true)}>🍅 Show Ingredients</button>
-            <button onClick={() => setShowInstructions(true)}>📝 Show Full Recipe</button>
-            <button onClick={handleToggleFavorite}>
-                {isFav ? '💔 Remove Favorite' : '⭐ Add to Favorites'}
+            <button onClick={handleShowIngredients}>🍅 Show Ingredients</button>
+            <button onClick={handleShowInstructions}>📝 Show Full Recipe</button>
+            <button onClick={onToggleFavorite}>
+                {isFavorite ? "❌ Remove from Favorites" : "❤️ Add to Favorites"}
             </button>
 
             {showIngredients && (
                 <IngredientsModal
-                    ingredients={video.ingredients || []}
+                    ingredients={ingredients}
                     onClose={() => setShowIngredients(false)}
                 />
             )}
 
             {showInstructions && (
                 <InstructionsModal
-                    instructions={video.steps || []}
+                    instructions={steps}
                     onClose={() => setShowInstructions(false)}
                 />
             )}

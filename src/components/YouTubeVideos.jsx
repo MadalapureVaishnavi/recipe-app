@@ -7,7 +7,7 @@ import axios from 'axios';
 import YouTubeRecipeCard from './YouTubeRecipeCard';
 import './modals.css';
 
-const API_KEY = 'AIzaSyAuJiMYD59l-LLHJGAHSJPEqT4k8rXtJfs'; // Use your own key
+const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 function YouTubeVideos({ query }) {
     const [videos, setVideos] = useState([]);

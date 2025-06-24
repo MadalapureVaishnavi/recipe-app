@@ -1,37 +1,43 @@
-// App.jsx
-import React, { useState, useEffect } from "react";
-import YouTubeVideoCard from "./components/YouTubeVideoCard";
+import React, { useEffect, useState } from "react";
+import YouTubeRecipeCard from "./components/YouTubeRecipeCard";
 import "./App.css";
+import { fetchYouTubeVideos } from "./utils/youtubeApi";
+import { FaHeart } from "react-icons/fa";
 
 function App() {
-  const [query, setQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [videos, setVideos] = useState([]);
-  const [favorites, setFavorites] = useState(() => {
-    const stored = localStorage.getItem("favorites");
-    return stored ? JSON.parse(stored) : [];
-  });
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [viewMode, setViewMode] = useState("search"); // "search" or "favorites"
 
-  const fetchVideos = async () => {
-    setShowFavorites(false); // ✅ This line fixes it!
-
-    if (!query) return;
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query} recipe&type=video&maxResults=10&key=AIzaSyAuJiMYD59l-LLHJGAHSJPEqT4k8rXtJfs
-`);
-    const data = await res.json();
-    setVideos(data.items || []);
-  };
-
-  const toggleFavorite = (video) => {
-    let updated;
-    if (favorites.some((fav) => fav.id.videoId === video.id.videoId)) {
-      updated = favorites.filter((fav) => fav.id.videoId !== video.id.videoId);
-    } else {
-      updated = [...favorites, video];
+  useEffect(() => {
+    if (viewMode === "search" && searchTerm.trim()) {
+      fetchVideos(searchTerm);
     }
-    setFavorites(updated);
-    localStorage.setItem("favorites", JSON.stringify(updated));
+  }, [viewMode]);
+
+  const fetchVideos = async (term) => {
+    if (!term.trim()) return;
+    const results = await fetchYouTubeVideos(term);
+    setVideos(results);
   };
+
+  const handleSearch = () => {
+    if (!searchTerm.trim()) return;
+    setViewMode("search"); // Switch to search mode
+    fetchVideos(searchTerm);
+  };
+
+  const handleFavoriteToggle = (video) => {
+    const exists = favorites.find((fav) => fav.id.videoId === video.id.videoId);
+    if (exists) {
+      setFavorites(favorites.filter((fav) => fav.id.videoId !== video.id.videoId));
+    } else {
+      setFavorites([...favorites, video]);
+    }
+  };
+
+  const displayedVideos = viewMode === "favorites" ? favorites : videos;
 
   return (
     <div className="App">
@@ -39,25 +45,32 @@ function App() {
 
       <div className="search-bar">
         <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for recipes (e.g., paneer, dosa)"
+          type="text"
+          value={searchTerm}
+          placeholder="Search recipes like khichadi, paneer..."
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button onClick={fetchVideos}>Search</button>
-        <button onClick={() => setShowFavorites(!showFavorites)} style={{ marginLeft: "10px" }}>
-          ❤️ Favorites
+        <button onClick={handleSearch}>Search</button>
+
+        <button onClick={() => setViewMode("favorites")}>
+          <FaHeart color={viewMode === "favorites" ? "red" : "black"} /> Favorites
         </button>
       </div>
 
       <div className="grid-container">
-        {(showFavorites ? favorites : videos).map((video) => (
-          <YouTubeVideoCard
-            key={video.id.videoId}
-            video={video}
-            onToggleFavorite={toggleFavorite}
-            isFavorited={favorites.some((fav) => fav.id.videoId === video.id.videoId)}
-          />
-        ))}
+        {displayedVideos.length > 0 ? (
+          displayedVideos.map((video) => (
+            <YouTubeRecipeCard
+              key={video.id.videoId}
+              video={video}
+              isFavorite={favorites.some((fav) => fav.id.videoId === video.id.videoId)}
+              onToggleFavorite={() => handleFavoriteToggle(video)} // ✅ Match this to the card prop
+            />
+
+          ))
+        ) : (
+          <p style={{ color: "white" }}>No videos found.</p>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IngredientsModal from "./IngredientsModal";
 import InstructionsModal from "./InstructionsModal";
 import { guessRecipeDetails } from "../utils/aiGuessService";
-import "./modals.css";
 import jsPDF from "jspdf";
-
+import "./modals.css";
 
 function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
     const [showIngredients, setShowIngredients] = useState(false);
@@ -15,48 +14,51 @@ function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
     const { videoId } = video.id;
     const { title, description, channelTitle } = video.snippet;
 
+    // Toggle modal-open class on body to block background when modal is open
+    useEffect(() => {
+        const isModalOpen = showIngredients || showInstructions;
+        document.body.classList.toggle("modal-open", isModalOpen);
+
+        return () => {
+            document.body.classList.remove("modal-open");
+        };
+    }, [showIngredients, showInstructions]);
+
+    // Fetch recipe details (ingredients and steps)
     const fetchRecipeDetails = async () => {
         const result = await guessRecipeDetails(`${title}\n${description}`);
         setIngredients(result.ingredients);
         setSteps(result.steps);
     };
 
-    const handleShowIngredients = () => {
-        fetchRecipeDetails();
+    const handleShowIngredients = async () => {
+        await fetchRecipeDetails();
         setShowIngredients(true);
     };
 
-    const handleShowInstructions = () => {
-        fetchRecipeDetails();
+    const handleShowInstructions = async () => {
+        await fetchRecipeDetails();
         setShowInstructions(true);
     };
 
-
-
+    // Generate PDF
     const handleDownloadPDF = async () => {
-        const { ingredients, steps } = await guessRecipeDetails(`${title}\n${description}`);
-        const doc = new jsPDF();
+        const result = await guessRecipeDetails(`${title}\n${description}`);
+        const { ingredients, steps } = result;
 
+        const doc = new jsPDF();
         const imgUrl = video.snippet.thumbnails?.high?.url;
 
-        // Load the image as base64
-        const getImageBase64 = async (url) => {
-            const res = await fetch(url);
-            const blob = await res.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-        };
+        const imgBlob = await fetch(imgUrl).then(res => res.blob());
+        const imageBase64 = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(imgBlob);
+        });
 
-        const imageBase64 = await getImageBase64(imgUrl);
-
-        // Insert image
         doc.addImage(imageBase64, "JPEG", 10, 10, 60, 45);
 
         let y = 60;
-
         doc.setFontSize(16);
         doc.text(title, 10, y);
         y += 10;
@@ -64,7 +66,7 @@ function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
         doc.setFontSize(12);
         doc.text("🍅 Ingredients:", 10, y);
         y += 7;
-        ingredients.forEach((item) => {
+        ingredients.forEach(item => {
             doc.text(`- ${item}`, 10, y);
             y += 7;
         });
@@ -80,17 +82,15 @@ function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
         doc.save(`${title}.pdf`);
     };
 
-
-
     return (
-        <div className="recipe-card">
+        <div className={`recipe-card ${showIngredients || showInstructions ? 'no-interaction' : ''}`}>
             <iframe
                 src={`https://www.youtube.com/embed/${videoId}`}
                 title={title}
                 width="100%"
                 height="200"
                 allowFullScreen
-            ></iframe>
+            />
 
             <h3>{title}</h3>
             <p><strong>Channel:</strong> {channelTitle}</p>
@@ -98,7 +98,6 @@ function YouTubeRecipeCard({ video, isFavorite, onToggleFavorite }) {
             <button onClick={handleShowIngredients}>🍅 Show Ingredients</button>
             <button onClick={handleShowInstructions}>📝 Show Full Recipe</button>
             <button onClick={handleDownloadPDF}>📄 Download PDF</button>
-
             <button onClick={onToggleFavorite}>
                 {isFavorite ? "❌ Remove from Favorites" : "❤️ Add to Favorites"}
             </button>

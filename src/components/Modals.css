@@ -1,105 +1,170 @@
-/* modals.css */
+/* =======================
+   General Modal Styling
+======================= */
+
+/* Prevent background scroll and background clicks */
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+  pointer-events: none;
+}
+
+/* Only allow modal interaction */
 .modal-overlay,
-.modal-backdrop {
+.modal-content,
+.close-button {
+  pointer-events: auto;
+}
+
+/* Full-screen dark backdrop */
+.modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Modal Box */
 .modal-content {
-  background: #fff6e1;
-  padding: 25px;
+  background-color: #fff8f0;
+  color: #3b2f2f;
   border-radius: 15px;
+  padding: 25px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   position: relative;
-  color: #3d2e23;
   overflow-y: auto;
-  max-height: 80vh;
+  max-height: 90vh;
+  z-index: 10000;
 }
 
+/* Close Button */
 .close-button {
   position: absolute;
   top: 12px;
-  right: 16px;
-  font-size: 20px;
-  background: none;
+  right: 15px;
+  background-color: #ff4444;
+  color: white;
   border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-  color: #000;
+  z-index: 10001;
 }
 
-/* CARD STYLING */
+/* =======================
+   Recipe Card Styling
+======================= */
+
 .recipe-card {
-  background: #ffe1e8;
+  background: #bb7397;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: 0.3s;
-  color: #3d2e2e;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  color: #fff;
 }
 
 .recipe-card:hover {
   transform: translateY(-5px);
 }
 
+.recipe-card iframe {
+  width: 100%;
+  height: 200px;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
 .recipe-card h3 {
   margin-top: 10px;
   font-size: 1.2rem;
-  color: #2c1a1a;
+  color: #fff;
 }
 
 .recipe-card p {
   font-size: 0.95rem;
-  color: #3b2c2c;
+  color: #eee;
 }
 
 .recipe-card button {
   margin: 8px 5px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   border: none;
   border-radius: 8px;
-  background-color: #ffbf9b;
-  color: #4c2e2e;
-  cursor: pointer;
+  background-color: #ffe0c4;
+  color: #532c5e;
   font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .recipe-card button:hover {
-  background-color: #ff9966;
+  background-color: #ff5722;
+  color: white;
 }
 
-/* Responsive */
+/* =======================
+   Responsive Styling
+======================= */
 @media (max-width: 480px) {
   .modal-content {
     padding: 15px;
   }
 
-  .search-bar input {
-    width: 90%;
-    margin-bottom: 10px;
-    border-radius: 8px;
-  }
-
   .search-bar {
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+  }
+
+  .search-bar input {
+    width: 90%;
+    border-radius: 8px;
   }
 
   .search-bar button {
     border-radius: 8px;
+    width: 90%;
+  }
+
+  .recipe-card iframe {
+    height: 180px;
+  }
+
+  .recipe-card h3 {
+    font-size: 1rem;
+  }
+
+  .recipe-card p {
+    font-size: 0.9rem;
+  }
+
+  .recipe-card button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
 }
-iiframe {
-  width: 100%;
-  height: 200px;
-  border-radius: 10px;
+
+/* =======================
+   Animations
+======================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

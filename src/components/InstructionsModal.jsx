@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import './Modals.css';
+import './modals.css';
 
 function InstructionsModal({ instructions, onClose }) {
 
